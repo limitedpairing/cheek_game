@@ -3,14 +3,14 @@
 <head>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>볼 주무르기</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
     font-family: 'Pretendard', sans-serif;
     background: #fff5f8;
-    min-height: 100dvh;
+    min-height: 100vh; min-height: calc(var(--vh, 1vh) * 100);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -21,7 +21,7 @@
   #screen {
     width: 100%;
     max-width: 420px;
-    min-height: 100dvh;
+    min-height: 100vh; min-height: calc(var(--vh, 1vh) * 100);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -186,6 +186,15 @@
   .rank-item.top2 { background: rgba(255,255,255,0.35); }
   .rank-item.top3 { background: rgba(192,192,192,0.3); }
 </style>
+<script>
+// 인앱브라우저 뷰포트 높이 보정
+function setVH() {
+  var vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', vh + 'px');
+}
+setVH();
+window.addEventListener('resize', setVH);
+</script>
 </head>
 <body>
 <div id="screen">
@@ -417,6 +426,7 @@
 
   function handleTap(e) {
     if (gameOver) return; e.preventDefault();
+    if (!gameStarted) { gameStarted = true; startCountdown(); }
     var rect = charWrap.getBoundingClientRect();
     var touch = e.touches ? e.touches[0] : e;
     var x = touch.clientX - rect.left, y = touch.clientY - rect.top;
@@ -494,8 +504,8 @@
     gameOver = false; score = 0; pressure = 0; combo = 0; lastTapTime = 0;
     scoreEl.textContent = '0'; popScreen.classList.remove('show');
     setSVG(SVG_NORMAL); updateMeter();
+    gameStarted = false;
     clearInterval(decayInterval); startDecay();
-    startCountdown();
   }
 
   document.getElementById('retry-btn').addEventListener('click', resetGame);
@@ -508,7 +518,8 @@
   charWrap.addEventListener('touchstart', handleTap, {passive: false});
   charWrap.addEventListener('mousedown', handleTap);
   startDecay();
-  startCountdown();
+  // 첫 탭 시 카운트다운 시작
+  var gameStarted = false;
 
   async function loadBest() {
     try {
