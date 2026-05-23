@@ -218,13 +218,13 @@
     <div class="pop-score" id="pop-score">0 <span>번</span></div>
     <div class="nick-wrap">
       <input type="text" id="nick-input" maxlength="10" placeholder="닉네임 입력 (최대 10자)">
-      <button class="btn-submit" id="submit-btn">점수 등록</button>
+      <button class="btn-submit" id="submit-btn">점수등록</button>
     </div>
     <div id="submit-msg"></div>
     <div class="pop-btns">
-      <button class="btn-retry" id="retry-btn">🔄 다시 하기</button>
+      <button class="btn-retry" id="retry-btn">🔄 다시하기</button>
       <button class="share-btn" id="share-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 300 300" style="vertical-align:middle; margin-right:6px; position:relative; top:-1px;"><path fill="#f16321" d="M178.57 127.15 290.27 0h-26.46l-97.03 110.38L89.34 0H0l117.13 166.93L0 300.25h26.46l102.41-116.59 81.8 116.59h89.34M36.01 19.54H76.66l187.13 262.13h-40.66"/></svg> 공유하기</button>
-      <button class="btn-ranking" id="ranking-btn">🏆 랭킹 보기</button>
+      <button class="btn-ranking" id="ranking-btn">🏆 랭킹보기</button>
     </div>
   </div>
   <!-- 랭킹 화면 -->
@@ -233,7 +233,7 @@
     <div id="ranking-list"></div>
     <div style="display:flex; gap:8px; margin-top:16px;">
       <button class="btn-retry" id="ranking-back-btn">← 돌아가기</button>
-      <button class="btn-retry" id="ranking-retry-btn">🔄 다시 하기</button>
+      <button class="btn-retry" id="ranking-retry-btn">🔄 다시하기</button>
     </div>
   </div>
 </div>
@@ -338,7 +338,7 @@
 
   var MAX_PRESSURE = 100, DECAY_RATE = 0.28, PRESSURE_PER_TAP = 13;
   var FAST_TAP_THRESHOLD = 380, DANGER_THRESHOLD = 72, WARN_THRESHOLD = 45;
-  var score = 0, best = parseInt(localStorage.getItem('cg_svg2') || '0');
+  var score = 0, best = 0;
   var timeLeft = 30, countdownInterval;
   var pressure = 0, gameOver = false, lastTapTime = 0, combo = 0, decayInterval;
   var pressedTimer = null;
@@ -426,7 +426,7 @@
     else { combo = 1; }
     pressure = Math.min(pressure + addP, MAX_PRESSURE);
     score++; scoreEl.textContent = score;
-    if (best < score) { best = score; localStorage.setItem('cg_svg2', best); bestEl.textContent = best; }
+    if (best < score) { best = score; bestEl.textContent = best; }
     spawnRipple(x, y);
     if (score % 3 === 0) spawnHeart(x - 10, y - 10);
     spawnCombo();
@@ -509,6 +509,20 @@
   charWrap.addEventListener('mousedown', handleTap);
   startDecay();
   startCountdown();
+
+  async function loadBest() {
+    try {
+      var res = await fetch(SUPA_URL + '/rest/v1/scores?select=score&order=score.desc&limit=1', {
+        headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+      });
+      var data = await res.json();
+      if (data && data.length > 0) {
+        best = data[0].score;
+        bestEl.textContent = best;
+      }
+    } catch(e) {}
+  }
+  loadBest();
 
   // Supabase
   var SUPA_URL = 'https://zqxsrclurzcdacqxkmyu.supabase.co';
