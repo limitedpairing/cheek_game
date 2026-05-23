@@ -130,15 +130,17 @@
     background: rgba(241,99,33,0.95);
     flex-direction: column; align-items: center; justify-content: center; z-index: 100;
     animation: fadeInPop 0.3s ease;
+    overflow-y: auto;
+    padding: 16px;
   }
   #pop-screen.show { display: flex; }
   @keyframes fadeInPop { from { opacity: 0; transform: scale(1.04); } to { opacity: 1; transform: scale(1); } }
-  .pop-char { width: 180px; height: 180px; margin-bottom: 8px; animation: popBounce 0.5s ease; }
+  .pop-char { width: 110px; height: 110px; margin-bottom: 4px; animation: popBounce 0.5s ease; }
   .pop-char svg { width: 100%; height: 100%; }
   @keyframes popBounce { 0% { transform: scale(0); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
-  .pop-title { font-size: 32px; font-weight: 900; color: white; margin: 4px 0; }
-  .pop-sub { font-size: 14px; color: rgba(255,255,255,0.85); margin-bottom: 6px; }
-  .pop-score { font-size: 54px; font-weight: 900; color: white; margin: 6px 0 26px; }
+  .pop-title { font-size: 24px; font-weight: 900; color: white; margin: 2px 0; }
+  .pop-sub { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 4px; }
+  .pop-score { font-size: 44px; font-weight: 900; color: white; margin: 4px 0 12px; }
   .pop-score span { font-size: 18px; font-weight: 700; opacity: 0.8; }
   .btn-submit:disabled, .nick-wrap input:disabled {
     opacity: 0.4;
@@ -146,11 +148,11 @@
   }
   .btn-retry, .share-btn, .btn-ranking {
     background: white; color: #f16321; border: none; border-radius: 99px;
-    padding: 12px 28px; font-size: 16px; font-weight: 900; cursor: pointer;
-    transition: transform 0.15s; font-family: inherit;
+    padding: 8px 14px; font-size: 13px; font-weight: 900; cursor: pointer;
+    transition: transform 0.15s; font-family: inherit; white-space: nowrap;
   }
   .btn-retry:active, .share-btn:active, .btn-ranking:active { transform: scale(0.96); }
-  .nick-wrap { display: flex; gap: 8px; margin: 10px 0 6px; }
+  .nick-wrap { display: flex; gap: 8px; margin: 6px 0 4px; }
   .nick-wrap input {
     flex: 1; border: none; border-radius: 99px; padding: 10px 16px;
     font-size: 15px; font-family: inherit; outline: none; min-width: 0;
@@ -161,7 +163,7 @@
     font-family: inherit; white-space: nowrap; transition: transform 0.15s;
   }
   .btn-submit:active { transform: scale(0.96); }
-  #submit-msg { font-size: 13px; color: rgba(255,255,255,0.85); min-height: 18px; margin-bottom: 4px; }
+  #submit-msg { font-size: 12px; color: rgba(255,255,255,0.85); min-height: 16px; margin-bottom: 2px; }
   .pop-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 
   #ranking-list {
@@ -209,7 +211,7 @@
 
 <div id="pop-screen">
   <!-- 결과 화면 -->
-  <div id="result-view">
+  <div id="result-view" style="width:100%; max-width:360px; padding: 0 24px;">
     <div class="pop-char" id="pop-char"></div>
     <div class="pop-title" id="pop-title">볼이 터졌어요!</div>
     <div class="pop-sub" id="pop-sub">다음엔 더 조심히 주물러줘요…</div>
@@ -226,7 +228,7 @@
     </div>
   </div>
   <!-- 랭킹 화면 -->
-  <div id="ranking-view" style="display:none;">
+  <div id="ranking-view" style="display:none; width:100%; max-width:360px; padding: 0 24px;">
     <div class="pop-title">🏆 랭킹</div>
     <div id="ranking-list"></div>
     <div style="display:flex; gap:8px; margin-top:16px;">
