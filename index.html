@@ -163,7 +163,7 @@
     font-family: inherit; white-space: nowrap; transition: transform 0.15s;
   }
   .btn-submit:active { transform: scale(0.96); }
-  #submit-msg { font-size: 12px; color: rgba(255,255,255,0.85); min-height: 16px; margin-bottom: 2px; }
+  #submit-msg { font-size: 12px; color: rgba(255,255,255,0.85); min-height: 16px; margin-bottom: 2px; padding-left: 8px; }
   .pop-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 
   #ranking-list {
@@ -232,7 +232,7 @@ window.addEventListener('resize', setVH);
     <div id="submit-msg"></div>
     <div class="pop-btns">
       <button class="btn-retry" id="retry-btn">🔄 다시하기</button>
-      <button class="share-btn" id="share-btn"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 300 300" style="vertical-align:middle; margin-right:6px; position:relative; top:-1px;"><path fill="#f16321" d="M178.57 127.15 290.27 0h-26.46l-97.03 110.38L89.34 0H0l117.13 166.93L0 300.25h26.46l102.41-116.59 81.8 116.59h89.34M36.01 19.54H76.66l187.13 262.13h-40.66"/></svg> 공유하기</button>
+      <button class="share-btn" id="share-btn"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 300 300" style="vertical-align:middle; margin-right:6px;"><path fill="#f16321" d="M178.57 127.15 290.27 0h-26.46l-97.03 110.38L89.34 0H0l117.13 166.93L0 300.25h26.46l102.41-116.59 81.8 116.59h89.34M36.01 19.54H76.66l187.13 262.13h-40.66"/></svg> 공유하기</button>
       <button class="btn-ranking" id="ranking-btn">🏆 랭킹보기</button>
     </div>
   </div>
@@ -566,7 +566,7 @@ window.addEventListener('resize', setVH);
         body: JSON.stringify({ nickname: nick, score: score })
       });
       if (res.ok) {
-        msg.textContent = '✅ 등록 완료!';
+        msg.textContent = '✓ 등록 완료!';
         document.getElementById('nick-input').disabled = true;
         document.getElementById('submit-btn').disabled = true;
       } else {
