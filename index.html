@@ -150,6 +150,10 @@
     background: white; color: #f16321; border: none; border-radius: 99px;
     padding: 8px 14px; font-size: 13px; font-weight: 900; cursor: pointer;
     transition: transform 0.15s; font-family: inherit; white-space: nowrap;
+    display: inline-flex; align-items: center; justify-content: center;
+    line-height: 1;
+    padding-top: 14px;
+    padding-bottom: 11px;
   }
   .btn-retry:active, .share-btn:active, .btn-ranking:active { transform: scale(0.96); }
   .nick-wrap { display: flex; gap: 8px; margin: 6px 0 4px; }
@@ -232,7 +236,7 @@ window.addEventListener('resize', setVH);
     <div id="submit-msg"></div>
     <div class="pop-btns">
       <button class="btn-retry" id="retry-btn">🔄 다시하기</button>
-      <button class="share-btn" id="share-btn"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 300 300" style="vertical-align:middle; margin-right:6px;"><path fill="#f16321" d="M178.57 127.15 290.27 0h-26.46l-97.03 110.38L89.34 0H0l117.13 166.93L0 300.25h26.46l102.41-116.59 81.8 116.59h89.34M36.01 19.54H76.66l187.13 262.13h-40.66"/></svg> 공유하기</button>
+      <button class="share-btn" id="share-btn"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 300 300" style="margin-right:5px; flex-shrink:0;"><path fill="#f16321" d="M178.57 127.15 290.27 0h-26.46l-97.03 110.38L89.34 0H0l117.13 166.93L0 300.25h26.46l102.41-116.59 81.8 116.59h89.34M36.01 19.54H76.66l187.13 262.13h-40.66"/></svg> 공유하기</button>
       <button class="btn-ranking" id="ranking-btn">🏆 랭킹보기</button>
     </div>
   </div>
@@ -521,19 +525,6 @@ window.addEventListener('resize', setVH);
   // 첫 탭 시 카운트다운 시작
   var gameStarted = false;
 
-  async function loadBest() {
-    try {
-      var res = await fetch(SUPA_URL + '/rest/v1/scores?select=score&order=score.desc&limit=1', {
-        headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
-      });
-      var data = await res.json();
-      if (data && data.length > 0) {
-        best = data[0].score;
-        bestEl.textContent = best;
-      }
-    } catch(e) {}
-  }
-  loadBest();
 
   // Supabase
   var SUPA_URL = 'https://zqxsrclurzcdacqxkmyu.supabase.co';
@@ -600,6 +591,20 @@ window.addEventListener('resize', setVH);
       list.innerHTML = '<div style="color:white;text-align:center;">불러오기 실패</div>';
     }
   }
+
+  async function loadBest() {
+    try {
+      var res = await fetch(SUPA_URL + '/rest/v1/scores?select=score&order=score.desc&limit=1', {
+        headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY }
+      });
+      var data = await res.json();
+      if (data && data.length > 0) {
+        best = data[0].score;
+        bestEl.textContent = best;
+      }
+    } catch(e) {}
+  }
+  loadBest();
 
   document.getElementById('submit-btn').addEventListener('click', submitScore);
   document.getElementById('ranking-btn').addEventListener('click', function() {
