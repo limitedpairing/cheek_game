@@ -39,15 +39,17 @@
   .header {
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    gap: 20px;
     margin-bottom: 16px;
   }
   .score-box {
     background: white;
     border-radius: 16px;
-    padding: 8px 20px;
+    padding: 8px 15px;
     text-align: center;
     box-shadow: 0 2px 12px rgba(255,107,157,0.12);
+    width: 80px;
   }
   .score-label { font-size: 11px; color: #c06080; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
   .score-value { font-size: 28px; font-weight: 900; color: #ff6b9d; line-height: 1; }
@@ -213,7 +215,7 @@ window.addEventListener('resize', setVH);
 <div id="screen">
   <div class="header">
     <div class="score-box">
-      <div class="score-label">주무른 횟수</div>
+      <div class="score-label">점수</div>
       <div class="score-value" id="score">0</div>
     </div>
     <div class="score-box timer-box">
@@ -236,7 +238,7 @@ window.addEventListener('resize', setVH);
     <div class="pop-char" id="pop-char"></div>
     <div class="pop-title" id="pop-title">볼이 터졌어요!</div>
     <div class="pop-sub" id="pop-sub">다음엔 더 조심히 주물러줘요…</div>
-    <div class="pop-score" id="pop-score">0 <span>번</span></div>
+    <div class="pop-score" id="pop-score">0 <span>점</span></div>
     <div class="nick-wrap">
       <input type="text" id="nick-input" maxlength="10" placeholder="닉네임 입력 (최대 10자)">
       <button class="btn-submit" id="submit-btn">점수등록</button>
@@ -351,6 +353,8 @@ window.addEventListener('resize', setVH);
   var MAX_PRESSURE = 100, DECAY_RATE = 0.28, PRESSURE_PER_TAP = 13;
   var FAST_TAP_THRESHOLD = 380, DANGER_THRESHOLD = 72, WARN_THRESHOLD = 45;
   var score = 0, best = 0;
+  var timeBonus = [50, 120, 210, 320, 450, 600, 780, 980]; // 이 점수 달성시 +5초
+  var nextBonusIdx = 0;
   var timeLeft = 30, countdownInterval;
   var pressure = 0, gameOver = false, lastTapTime = 0, combo = 0, decayInterval;
   var pressedTimer = null;
@@ -405,6 +409,14 @@ window.addEventListener('resize', setVH);
     }, 500);
   }
 
+  function spawnTimeBonus() {
+    var el = document.createElement('div');
+    el.style.cssText = 'position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:16px;font-weight:900;color:#ff6b9d;pointer-events:none;white-space:nowrap;animation:comboFloat 1s ease-out forwards;z-index:10;';
+    el.textContent = '⏱️ +5초!';
+    document.getElementById('char-wrap').appendChild(el);
+    setTimeout(function(){ el.remove(); }, 1000);
+  }
+
   function spawnRipple(x, y) {
     var r = document.createElement('div'); r.className = 'ripple';
     var size = 50; r.style.cssText = 'width:'+size+'px;height:'+size+'px;left:'+(x-size/2)+'px;top:'+(y-size/2)+'px;';
@@ -438,8 +450,29 @@ window.addEventListener('resize', setVH);
     if (elapsed < FAST_TAP_THRESHOLD) { addP += (FAST_TAP_THRESHOLD-elapsed)/FAST_TAP_THRESHOLD*16; combo++; }
     else { combo = 1; }
     pressure = Math.min(pressure + addP, MAX_PRESSURE);
-    score++; scoreEl.textContent = score;
+
+    // 콤보 배율 (연속 탭할수록 배율 증가, 최대 x4)
+    var comboMultiplier = elapsed < FAST_TAP_THRESHOLD
+      ? Math.min(1 + (combo - 1) * 0.3, 4)
+      : 1;
+
+    // 압력 보너스: 구간별 점수 (4단계)
+    var pct = pressure / MAX_PRESSURE;
+    var pressureBonus = pct >= 0.9 ? 4 : pct >= 0.7 ? 3 : pct >= 0.5 ? 2 : pct >= 0.3 ? 1 : 0;
+
+    // 최종 점수 = (1 + 압력보너스) × 콤보배율
+    var gained = Math.ceil((1 + pressureBonus) * comboMultiplier);
+    score += gained; scoreEl.textContent = score;
     if (best < score) { best = score; bestEl.textContent = best; }
+
+    // 목표 점수 달성 시 +5초
+    if (nextBonusIdx < timeBonus.length && score >= timeBonus[nextBonusIdx]) {
+      nextBonusIdx++;
+      timeLeft = Math.min(timeLeft + 5, 99);
+      timerDisplay.textContent = timeLeft;
+      timerBox.classList.remove('warning');
+      spawnTimeBonus();
+    }
     spawnRipple(x, y);
     if (score % 3 === 0) spawnHeart(x - 10, y - 10);
     spawnCombo();
@@ -459,7 +492,7 @@ window.addEventListener('resize', setVH);
       popChar.innerHTML = SVG_DANGER;
       document.getElementById('pop-title').textContent = '볼이 터졌어요!';
       document.getElementById('pop-sub').textContent = '다음엔 더 조심히 주물러줘요…';
-      popScoreEl.innerHTML = score + ' <span>번</span>';
+      popScoreEl.innerHTML = score + ' <span>점</span>';
       var savedNick = localStorage.getItem('cheek_nick') || '';
       document.getElementById('nick-input').value = savedNick;
       popScreen.classList.add('show');
@@ -494,7 +527,7 @@ window.addEventListener('resize', setVH);
       popChar.innerHTML = SVG_NORMAL;
       document.getElementById('pop-title').textContent = '시간 종료!';
       document.getElementById('pop-sub').textContent = '30초 동안 열심히 주물렀어요!';
-      popScoreEl.innerHTML = score + ' <span>번</span>';
+      popScoreEl.innerHTML = score + ' <span>점</span>';
       var savedNick = localStorage.getItem('cheek_nick') || '';
       document.getElementById('nick-input').value = savedNick;
       popScreen.classList.add('show');
@@ -514,6 +547,7 @@ window.addEventListener('resize', setVH);
     scoreEl.textContent = '0'; popScreen.classList.remove('show');
     setSVG(SVG_NORMAL); updateMeter();
     gameStarted = false;
+    nextBonusIdx = 0;
     clearInterval(decayInterval); startDecay();
     clearInterval(countdownInterval);
     timeLeft = 30; timerDisplay.textContent = 30; timerBox.classList.remove('warning');
@@ -521,7 +555,7 @@ window.addEventListener('resize', setVH);
 
   document.getElementById('retry-btn').addEventListener('click', resetGame);
   document.getElementById('share-btn').addEventListener('click', function() {
-    var text = '✦⊹ 2026 케의주 카페 이벤트 ʟɪᴍɪᴛᴇᴅ ᴘᴀɪʀɪɴɢ\n✦⊹ 볼 주무르기 게임에서 '+score+'번 주물렀어요!\n #LIMITED_PAIRING #KEJ #EJ #K';
+    var text = '✦⊹ 2026 케의주 카페 이벤트 ʟɪᴍɪᴛᴇᴅ ᴘᴀɪʀɪɴɢ\n✦⊹ 볼 주무르기 게임에서 '+score+'점 획득!\n #LIMITED_PAIRING #KEJ #EJ #K';
     var url = encodeURIComponent(window.location.href);
     window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text)+'&url='+url);
   });
@@ -593,7 +627,7 @@ window.addEventListener('resize', setVH);
         if (i > 0 && row.score < data[i-1].score) rank++;
         var cls = rank === 1 ? 'rank-item top1' : rank === 2 ? 'rank-item top2' : rank === 3 ? 'rank-item top3' : 'rank-item';
         var medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank + '.';
-        list.innerHTML += '<div class="' + cls + '"><span class="rank-num">' + medal + '</span><span class="rank-nick">' + row.nickname + '</span><span class="rank-score">' + row.score + '번</span></div>';
+        list.innerHTML += '<div class="' + cls + '"><span class="rank-num">' + medal + '</span><span class="rank-nick">' + row.nickname + '</span><span class="rank-score">' + row.score + '점</span></div>';
       });
       if (data.length === 0) list.innerHTML = '<div style="color:white;text-align:center;padding:20px;">아직 기록이 없어요!</div>';
     } catch(e) {
